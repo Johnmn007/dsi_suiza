@@ -1,0 +1,54 @@
+{% extends "auth/base.html" %}
+
+{% block title %}prueba{% endblock %}
+
+{% block sections %}
+
+<div class="container col-3 card mt-5 shadow">
+
+    <div class="container text-center mt-3">
+      <img style="height: 150px; width:150px" src="../static/img/logo_dsi.png" alt="logo dsi">
+      <h3 class="mt-3">REGISTRO-USUARIOS</h3>
+  </div>
+  
+    <div class="container mt-4">
+      <form method="post" action="/reg">
+        <div class="mb-3 row">
+          <label for="inputName" class="col-4 col-form-label">Nuevo Usuario</label>
+          <!-- <div class="col-8"> -->
+            <input
+              type="text"
+              class="form-control"
+              name="usuario"
+              id="inputName"
+              placeholder="Name"
+            />
+          <!-- </div> -->
+        </div>
+        <div class="mb-3 row">
+          <label for="inputName" class="col-4 col-form-label">crea tu Contraseña</label>
+          <!-- <div class="col-8"> -->
+            <input
+              type="password"
+              class="form-control"
+              name="contraseña"
+              id="inputName"
+              placeholder="Name"
+            />
+          <!-- </div> -->
+        </div>
+  
+       
+        <div class="mb-3 row">
+          <div class="offset-sm-4 col-sm-8">
+            <button type="submit" class="btn btn-primary">REGISTRAR</button>
+          </div>
+        </div>      
+       
+        <p class="mt-5 mb-3 text-muted text-center">&copy; Pucallpa-2024</p>
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}
