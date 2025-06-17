@@ -1,17 +1,29 @@
 from flask import Flask, render_template, request, redirect
-from conector import *
-from werkzeug.security import generate_password_hash,check_password_hash  
-from flask_sqlalchemy import SQLAlchemy
- 
-
+import os
+from werkzeug.security import generate_password_hash, check_password_hash
+from config import DevelopmentConfig, TestingConfig, ProductionConfig
+from extensions import db  # Importa la instancia
+from models import LoginNot  # Importa tu modelo
 
 app = Flask(__name__)
 
-# seccion de configuraciones db
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/sistema_dsi'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Cargar configuración según entorno
+env = os.getenv('FLASK_ENV')
 
-db = SQLAlchemy(app)
+if env == 'production':
+    app.config.from_object(ProductionConfig)
+elif env == 'testing':
+    app.config.from_object(TestingConfig)
+else:
+    app.config.from_object(DevelopmentConfig)
+
+# Inicializar extensiones
+db.init_app(app)
+
+# Si usarás create_all, añade esto opcionalmente:
+with app.app_context():
+    db.create_all()
+
 
 # Lista de preguntas
 preguntas = [
@@ -79,7 +91,6 @@ def prueba():
     return render_template('prueba.html')
     
     
-    kf
 @app.route("/test", methods=["GET", "POST"])
 def test():
     if request.method == "POST":
@@ -110,44 +121,40 @@ def login():
     
     return render_template('login.html')
 
-@app.route('/ing',methods=['GET','POST'])
+@app.route('/ing', methods=['GET', 'POST'])
 def ing():
-    if request.method=='POST':
-        usuario=request.form['usuario']
-        contraseña=request.form['contraseña']
-        
-        cone = con.cursor()
-        cone.execute('SELECT contraseña FROM login_not WHERE usuario = %s', (usuario,))
-        t= cone.fetchone()
-              
-        
-        if t :
-            c=check_password_hash(t[0],contraseña)
-            if c:
-                return redirect('/sis')
-            else:
-                error='usuario o contraseña incorrectos'
-                return render_template('login.html', error=error)
-        else:
-            error='usuario o contraseña incorrectos'
-            return render_template('login.html')
-# -----------------------------------------------------empieza registr_user-----------
-@app.route('/registro')  
-def registro_log():
-    
-    return render_template('registro_user.html')
+    if request.method == 'POST':
+        nombre_usuario = request.form['usuario']
+        contraseña = request.form['contraseña']
 
-@app.route('/reg',methods=['POST'])  
+        user = LoginNot.query.filter_by(usuario=nombre_usuario).first()
+
+        if user and user.check_password(contraseña):
+            return redirect('/sis')
+        else:
+            error = 'Usuario o contraseña incorrectos'
+            return render_template('login.html', error=error)
+
+
+
+# -----------------------------------------------------empieza registr_user-----------
+@app.route('/reg', methods=['POST'])
 def registro():
-    usuario=request.form['usuario']
-    contraseña=request.form['contraseña']
-    
-    encript=generate_password_hash(contraseña)
-    
-    cone=con.cursor()
-    cone.execute('insert into login_not (usuario,contraseña)values(%s,%s)',(usuario,encript))
-    con.commit()
+    usuario = request.form['usuario']
+    contraseña = request.form['contraseña']
+
+    # Encriptar la contraseña
+    encriptada = generate_password_hash(contraseña)
+
+    # Crear nuevo usuario
+    nuevo_usuario = usuario(usuario=usuario, contraseña=encriptada)
+
+    # Guardar en la base de datos
+    db.session.add(nuevo_usuario)
+    db.session.commit()
+
     return redirect('/login')
+
 
 # ----------------------------------------------------------sis_notas-----------
 @app.route('/sis')  
@@ -163,6 +170,6 @@ def boleta():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
     
  

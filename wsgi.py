@@ -1,4 +1,4 @@
 from app import app
 
-if __name__ == "__main__":
-    app.run()
+# Punto de entrada WSGI para Gunicorn
+application = app

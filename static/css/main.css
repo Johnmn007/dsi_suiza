@@ -1571,6 +1571,12 @@ section,
   opacity: 1;
   bottom: 15px;
 }
+.fot_doc{
+  max-width: 17em;
+  max-height: 17em;
+  border-radius: 50%;
+  border: solid var(--nav-hover-color) 4px;
+}
 
 /*--------------------------------------------------------------
 # Gallery Section
